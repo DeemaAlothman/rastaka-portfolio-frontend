@@ -1,0 +1,160 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id          BigInt   @id @default(autoincrement())
+  name        String
+  type        ClientType
+  slug        String   @unique
+  description String? 
+  websiteUrl  String?
+  logoUrl     String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  works       Work[]
+}
+
+model Work {
+  id           BigInt    @id @default(autoincrement())
+  client       Client    @relation(fields: [clientId], references: [id])
+  clientId     BigInt
+
+  type         WorkType
+  status       WorkStatus @default(PUBLISHED)
+
+  title        String
+  slug         String     @unique
+  shortDesc    String?
+  heroSubtitle String?
+  publishDate  DateTime?
+  visitUrl     String?
+  isFeatured   Boolean    @default(false)
+
+  // SEO fields
+  seoTitle       String?
+  seoDescription String?
+  seoKeywords    String?  // ممكن تخزنيها كـ "keyword1, keyword2, keyword3"
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  sections     WorkSection[]
+  media        Media[]
+  tags         WorkTag[]
+}
+
+model WorkSection {
+  id          BigInt         @id @default(autoincrement())
+  work        Work           @relation(fields: [workId], references: [id])
+  workId      BigInt
+
+  sectionType SectionType
+  title       String
+  body        String
+  sortOrder   Int            @default(0)
+  highlight   Boolean        @default(false)
+
+  createdAt   DateTime       @default(now())
+
+  media       Media[]
+}
+
+model Media {
+  id           BigInt     @id @default(autoincrement())
+  work         Work       @relation(fields: [workId], references: [id])
+  workId       BigInt
+
+  section      WorkSection? @relation(fields: [sectionId], references: [id])
+  sectionId    BigInt?
+
+  fileType     MediaType
+  fileUrl      String
+  thumbnailUrl String?
+  altText      String?
+  isPrimary    Boolean    @default(false)
+  sortOrder    Int        @default(0)
+
+  createdAt    DateTime   @default(now())
+}
+
+model Tag {
+  id       BigInt    @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+
+  works    WorkTag[]
+}
+
+model WorkTag {
+  work   Work @relation(fields: [workId], references: [id])
+  workId BigInt
+
+  tag    Tag  @relation(fields: [tagId], references: [id])
+  tagId  BigInt
+
+  @@id([workId, tagId])
+}
+
+// Admin users (لو حبيتي تعملي لوحة تحكم)
+model AdminUser {
+  id           BigInt   @id @default(autoincrement())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  role         AdminRole @default(EDITOR)
+  isActive     Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ========= ENUMS =========
+
+enum ClientType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum WorkType {
+  LOGO
+  WEBSITE
+  SOCIAL_MEDIA
+  REEL
+}
+
+enum WorkStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum SectionType {
+  OVERVIEW
+  GOALS
+  PROCESS
+  RESULTS
+  BRAND_STORY
+  TECH_STACK
+  OTHER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum AdminRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
