@@ -1,0 +1,55 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: portfolio-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-portfolio_secure_password_2024}
+      POSTGRES_DB: portfolio_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - portfolio-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Backend Application
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-backend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-portfolio_secure_password_2024}@postgres:5432/portfolio_db?schema=public
+      JWT_SECRET: ${JWT_SECRET:-super_secret_long_token_key_change_me_in_production}
+      JWT_EXPIRES_IN: 7d
+    volumes:
+      - ./uploads:/app/uploads
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - portfolio-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  portfolio-network:
+    driver: bridge
