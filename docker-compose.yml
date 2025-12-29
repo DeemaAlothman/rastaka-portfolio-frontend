@@ -28,14 +28,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # 👇 IMPORTANT: pass DATABASE_URL at build time for "prisma generate"
+        DATABASE_URL: ${DATABASE_URL}
     container_name: portfolio-backend
     restart: always
     environment:
       NODE_ENV: production
       PORT: 4000
-      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-portfolio_secure_password_2024}@postgres:5432/portfolio_db?schema=public
+
+      # 👇 runtime DATABASE_URL (same as build)
+      DATABASE_URL: ${DATABASE_URL}
+
       JWT_SECRET: ${JWT_SECRET:-super_secret_long_token_key_change_me_in_production}
       JWT_EXPIRES_IN: 7d
+
+      # 👇 to stop "Secure variable is not set" warnings if referenced anywhere
+      Secure: ${Secure:-}
     volumes:
       - ./uploads:/app/uploads
     ports:
