@@ -1,0 +1,1299 @@
+{
+	"info": {
+		"_postman_id": "rastaka-portfolio-api",
+		"name": "Rastaka Portfolio API",
+		"description": "مجموعة كاملة لاختبار API بورتفوليو راستاكا",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"email\": \"admin@rastaka.com\",\n  \"password\": \"Admin123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "تسجيل أدمن جديد"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@rastaka.com\",\n  \"password\": \"Admin123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "تسجيل دخول الأدمن"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Company",
+			"item": [
+				{
+					"name": "Create Company",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"company_id\", jsonData.company.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "شركة E-mall",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "شركة تجارة إلكترونية رائدة",
+									"type": "text"
+								},
+								{
+									"key": "website",
+									"value": "https://emall.com",
+									"type": "text"
+								},
+								{
+									"key": "logo",
+									"type": "file",
+									"src": "",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies"
+							]
+						},
+						"description": "إضافة شركة جديدة"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Companies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies"
+							]
+						},
+						"description": "عرض جميع الشركات"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}"
+							]
+						},
+						"description": "عرض شركة محددة"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "شركة E-mall المحدثة",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "وصف محدث للشركة",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}"
+							]
+						},
+						"description": "تحديث بيانات شركة"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Company",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}"
+							]
+						},
+						"description": "حذف شركة"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolio",
+			"item": [
+				{
+					"name": "Create Logo (Individual)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"portfolio_logo_id\", jsonData.portfolioItem.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "شعار لمطعم الزيتونة",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "شعار احترافي لمطعم الزيتونة",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "LOGO",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "INDIVIDUAL",
+									"type": "text"
+								},
+								{
+									"key": "clientName",
+									"value": "أحمد محمد",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "اختر صورة الشعار"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "إضافة شعار لعميل فردي"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Logo (Corporate)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "شعار شركة E-mall",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "شعار احترافي للشركة",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "LOGO",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "CORPORATE",
+									"type": "text"
+								},
+								{
+									"key": "companyId",
+									"value": "{{company_id}}",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "اختر صورة الشعار"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "إضافة شعار لشركة"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Reel (Individual)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"portfolio_reel_id\", jsonData.portfolioItem.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "ريلز إعلاني لمنتج",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "ريلز احترافي مدته 30 ثانية",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "REEL",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "INDIVIDUAL",
+									"type": "text"
+								},
+								{
+									"key": "clientName",
+									"value": "سارة علي",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "اختر ملف الفيديو"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "إضافة ريلز لعميل فردي"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Website (Corporate)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"portfolio_website_id\", jsonData.portfolioItem.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "موقع شركة E-mall",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "متجر إلكتروني متكامل مع نظام دفع",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "WEBSITE",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "CORPORATE",
+									"type": "text"
+								},
+								{
+									"key": "companyId",
+									"value": "{{company_id}}",
+									"type": "text"
+								},
+								{
+									"key": "websiteUrl",
+									"value": "https://emall.com",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "اختر صورة screenshot الموقع"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "إضافة موقع لشركة"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Social Media (Individual - Multiple Images)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"portfolio_social_id\", jsonData.portfolioItem.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "حملة إعلانية على إنستغرام",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "تصاميم سوشيال ميديا إبداعية لحملة العيد",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "SOCIAL_MEDIA",
+									"type": "text"
+								},
+								{
+									"key": "category",
+									"value": "INDIVIDUAL",
+									"type": "text"
+								},
+								{
+									"key": "clientName",
+									"value": "محمد خالد",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "صورة 1"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "صورة 2"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "صورة 3"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "إضافة منشور سوشيال ميديا مع صور متعددة (حتى 10 صور)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Portfolio Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "عرض جميع الأعمال"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Item By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/{{portfolio_logo_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"{{portfolio_logo_id}}"
+							]
+						},
+						"description": "عرض عمل محدد"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Items By Type (Logos)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/LOGO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"LOGO"
+							]
+						},
+						"description": "عرض جميع الشعارات"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Items By Type (Reels)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/REEL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"REEL"
+							]
+						},
+						"description": "عرض جميع الريلز"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Items By Type (Websites)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/WEBSITE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"WEBSITE"
+							]
+						},
+						"description": "عرض جميع المواقع"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Items By Type (Social Media)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/SOCIAL_MEDIA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"SOCIAL_MEDIA"
+							]
+						},
+						"description": "عرض جميع منشورات السوشيال ميديا"
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Portfolio (Individual Works)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?category=INDIVIDUAL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "INDIVIDUAL"
+								}
+							]
+						},
+						"description": "عرض أعمال العملاء الأفراد فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Portfolio (Corporate Works)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?category=CORPORATE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "CORPORATE"
+								}
+							]
+						},
+						"description": "عرض أعمال الشركات فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Portfolio (By Company)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?companyId={{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "{{company_id}}"
+								}
+							]
+						},
+						"description": "عرض أعمال شركة معينة"
+					},
+					"response": []
+				},
+				{
+					"name": "Filter Portfolio (Logos + Corporate)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?type=LOGO&category=CORPORATE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "LOGO"
+								},
+								{
+									"key": "category",
+									"value": "CORPORATE"
+								}
+							]
+						},
+						"description": "عرض شعارات الشركات فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"stats"
+							]
+						},
+						"description": "عرض إحصائيات الأعمال"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Portfolio Item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "عنوان محدث",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "وصف محدث",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/{{portfolio_logo_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"{{portfolio_logo_id}}"
+							]
+						},
+						"description": "تحديث بيانات عمل"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Social Media (New Images)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "حملة محدثة",
+									"type": "text"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "صورة جديدة 1"
+								},
+								{
+									"key": "media",
+									"type": "file",
+									"src": "",
+									"description": "صورة جديدة 2"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/{{portfolio_social_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"{{portfolio_social_id}}"
+							]
+						},
+						"description": "تحديث صور السوشيال ميديا"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Portfolio Item",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/{{portfolio_logo_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"{{portfolio_logo_id}}"
+							]
+						},
+						"description": "حذف عمل"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SEO",
+			"item": [
+				{
+					"name": "Create SEO Config",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"siteName\": \"Rastaka Portfolio\",\n  \"siteDescription\": \"شركة راستاكا للتصميم والتطوير - نقدم أفضل خدمات تصميم المواقع والشعارات\",\n  \"defaultOgImage\": \"/images/og-default.jpg\",\n  \"twitterHandle\": \"@rastaka\",\n  \"keywords\": \"تصميم, تطوير, شعارات, مواقع, سوشيال ميديا\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seo/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"config"
+							]
+						},
+						"description": "إنشاء إعدادات SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Get SEO Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"config"
+							]
+						},
+						"description": "عرض إعدادات SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Update SEO Config",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"siteName\": \"Rastaka - Portfolio Updated\",\n  \"siteDescription\": \"وصف محدث\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/seo/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"config"
+							]
+						},
+						"description": "تحديث إعدادات SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Item Metadata By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/metadata/{{portfolio_logo_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"metadata",
+								"{{portfolio_logo_id}}"
+							]
+						},
+						"description": "عرض metadata لعمل محدد"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Item Metadata By Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/metadata/slug/شعار-لمطعم-الزيتونة",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"metadata",
+								"slug",
+								"شعار-لمطعم-الزيتونة"
+							]
+						},
+						"description": "عرض metadata بواسطة الـ slug"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sitemap XML",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/sitemap.xml",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"sitemap.xml"
+							]
+						},
+						"description": "عرض sitemap.xml"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Robots.txt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/robots.txt",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"robots.txt"
+							]
+						},
+						"description": "عرض robots.txt"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "company_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_logo_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_reel_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_website_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_social_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

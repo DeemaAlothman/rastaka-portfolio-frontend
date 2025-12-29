@@ -1,142 +1,115 @@
 // src/controllers/authController.js
-import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_key_change_me";
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
-function generateToken(user) {
-  return jwt.sign(
-    {
-      userId: user.id.toString(),
-      email: user.email,
-      role: user.role,
-    },
-    JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
-  );
-}
-
-// ✅ POST /auth/register
-export async function registerAdmin(req, res) {
+// تسجيل أدمن جديد (استخدم هذا مرة واحدة لإنشاء حساب الأدمن الأول)
+export const registerAdmin = async (req, res) => {
   try {
-    const { email, password, name, role } = req.body;
+    const { email, password, name } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "email and password are required" });
+    if (!email || !password || !name) {
+      return res.status(400).json({ error: 'جميع الحقول مطلوبة' });
     }
 
-    const existing = await prisma.adminUser.findUnique({
-      where: { email },
+    const existingAdmin = await prisma.admin.findUnique({
+      where: { email }
     });
 
-    if (existing) {
-      return res.status(400).json({ error: "Email already exists" });
+    if (existingAdmin) {
+      return res.status(400).json({ error: 'البريد الإلكتروني مستخدم بالفعل' });
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // ✅ HERE: we map `name` → `fullName` because Prisma expects fullName
-    const admin = await prisma.adminUser.create({
+    const admin = await prisma.admin.create({
       data: {
         email,
-        passwordHash,
-        fullName: name || "Admin User",
-        // if your model also has `name` field, you can add it too:
-        // name: name || null,
-        role: role || "ADMIN",
-      },
+        password: hashedPassword,
+        name
+      }
     });
-
-    const token = generateToken(admin);
 
     res.status(201).json({
-      token,
-      user: {
+      message: 'تم إنشاء حساب الأدمن بنجاح',
+      admin: {
         id: admin.id,
         email: admin.email,
-        name: admin.fullName, // return fullName as name to frontend
-        role: admin.role,
-      },
+        name: admin.name
+      }
     });
   } catch (error) {
-    console.error("Error registering admin:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error in registerAdmin:', error);
+    res.status(500).json({ error: 'حدث خطأ في السيرفر' });
   }
-}
+};
 
-export async function loginAdmin(req, res) {
+// تسجيل الدخول
+export const loginAdmin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ error: "email and password are required" });
+      return res.status(400).json({ error: 'البريد الإلكتروني وكلمة المرور مطلوبة' });
     }
 
-    const admin = await prisma.adminUser.findUnique({
-      where: { email },
+    const admin = await prisma.admin.findUnique({
+      where: { email }
     });
 
     if (!admin) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
     }
 
-    const isMatch = await bcrypt.compare(password, admin.passwordHash);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    const isValidPassword = await bcrypt.compare(password, admin.password);
+
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'البريد الإلكتروني أو كلمة المرور غير صحيحة' });
     }
 
-    const token = generateToken(admin);
+    const token = jwt.sign(
+      { adminId: admin.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
+      message: 'تم تسجيل الدخول بنجاح',
       token,
-      user: {
+      admin: {
         id: admin.id,
         email: admin.email,
-        name: admin.fullName, // 👈 use fullName here
-        role: admin.role,
-      },
+        name: admin.name
+      }
     });
   } catch (error) {
-    console.error("Error logging in admin:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error in loginAdmin:', error);
+    res.status(500).json({ error: 'حدث خطأ في السيرفر' });
   }
-}
+};
 
-export async function getMe(req, res) {
+// الحصول على معلومات الأدمن الحالي
+export const getCurrentAdmin = async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-
-    const adminIdBigInt = BigInt(req.user.id);
-
-    const admin = await prisma.adminUser.findUnique({
-      where: { id: adminIdBigInt },
+    const admin = await prisma.admin.findUnique({
+      where: { id: req.adminId },
       select: {
         id: true,
         email: true,
-        fullName: true, // 👈
-        role: true,
-        createdAt: true,
-      },
+        name: true,
+        createdAt: true
+      }
     });
 
     if (!admin) {
-      return res.status(404).json({ error: "Admin not found" });
+      return res.status(404).json({ error: 'الأدمن غير موجود' });
     }
 
-    res.json({
-      id: admin.id,
-      email: admin.email,
-      name: admin.fullName, // 👈 return as name
-      role: admin.role,
-      createdAt: admin.createdAt,
-    });
+    res.json({ admin });
   } catch (error) {
-    console.error("Error in /auth/me:", error);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error in getCurrentAdmin:', error);
+    res.status(500).json({ error: 'حدث خطأ في السيرفر' });
   }
-}
+};

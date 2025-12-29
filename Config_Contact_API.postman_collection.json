@@ -1,0 +1,434 @@
+{
+	"info": {
+		"_postman_id": "config-contact-api",
+		"name": "Config & Contact API",
+		"description": "Config و Contact API للبورتفوليو",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "submission_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Config API",
+			"item": [
+				{
+					"name": "Get Config (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config"
+							]
+						},
+						"description": "عرض إعدادات الموقع (متاح للجميع)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Config (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"siteName\": \"Rastaka\",\n  \"siteDescription\": \"شركة راستاكا للتصميم والتطوير\",\n  \"email\": \"info@rastaka.com\",\n  \"phone\": \"+963 123 456 789\",\n  \"address\": \"دمشق، سوريا\",\n  \"facebookUrl\": \"https://facebook.com/rastaka\",\n  \"instagramUrl\": \"https://instagram.com/rastaka\",\n  \"twitterUrl\": \"https://twitter.com/rastaka\",\n  \"linkedinUrl\": \"https://linkedin.com/company/rastaka\",\n  \"youtubeUrl\": \"https://youtube.com/@rastaka\",\n  \"whatsappNumber\": \"+963987654321\",\n  \"footerText\": \"© 2025 Rastaka. جميع الحقوق محفوظة.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config"
+							]
+						},
+						"description": "تحديث إعدادات الموقع (أدمن فقط)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contact API",
+			"item": [
+				{
+					"name": "Submit Contact Form (Public)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"submission_id\", jsonData.submission.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"email\": \"ahmad@example.com\",\n  \"phone\": \"+963987654321\",\n  \"subject\": \"استفسار عن خدماتكم\",\n  \"message\": \"مرحباً، أود الاستفسار عن خدمات التصميم المتوفرة لديكم.\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contact",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact"
+							]
+						},
+						"description": "إرسال رسالة تواصل (متاح للجميع)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Submissions (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions"
+							]
+						},
+						"description": "عرض جميع رسائل التواصل (أدمن فقط)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submissions with Filters (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions?status=UNREAD&limit=10&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "UNREAD",
+									"description": "UNREAD, READ, ARCHIVED"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						},
+						"description": "عرض الرسائل مع فلترة حسب الحالة"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submission By ID (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions/{{submission_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions",
+								"{{submission_id}}"
+							]
+						},
+						"description": "عرض رسالة محددة (يتم تغيير الحالة إلى READ تلقائياً)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Submissions Stats (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions",
+								"stats"
+							]
+						},
+						"description": "عرض إحصائيات الرسائل"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Submission Status (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"READ\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions/{{submission_id}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions",
+								"{{submission_id}}",
+								"status"
+							]
+						},
+						"description": "تحديث حالة رسالة (UNREAD, READ, ARCHIVED)"
+					},
+					"response": []
+				},
+				{
+					"name": "Archive Submission (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"ARCHIVED\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions/{{submission_id}}/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions",
+								"{{submission_id}}",
+								"status"
+							]
+						},
+						"description": "أرشفة رسالة"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Submission (Admin)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/contact/submissions/{{submission_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact",
+								"submissions",
+								"{{submission_id}}"
+							]
+						},
+						"description": "حذف رسالة"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth (Login First)",
+			"item": [
+				{
+					"name": "Login Admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"jwt_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@rastaka.com\",\n  \"password\": \"Admin123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "تسجيل دخول أدمن (سيحفظ التوكن تلقائياً)"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

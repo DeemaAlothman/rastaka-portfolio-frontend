@@ -4,7 +4,9 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
+    "predev": "npx kill-port 4000",
     "dev": "nodemon src/server.js",
+    "prestart": "npx kill-port 4000",
     "start": "node src/server.js",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:studio": "npx prisma studio"
@@ -20,6 +22,7 @@
     "pg": "^8.12.0"
   },
   "devDependencies": {
+    "kill-port": "^2.0.1",
     "nodemon": "^3.1.0",
     "prisma": "^6.0.0"
   }

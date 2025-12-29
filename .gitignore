@@ -1,11 +1,26 @@
-node_modules
+node_modules/
+.next/
+
 # Keep environment variables out of version control
 .env
-
-/generated/prisma
-node_modules
-.next
-.env
 .env.local
-npm-debug.log
+.env.*
+
+# Prisma generated
+/generated/prisma
+prisma/generated/
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Windows junk
+nul
+
+# Uploads (user generated files)
+uploads/
+*.mp4

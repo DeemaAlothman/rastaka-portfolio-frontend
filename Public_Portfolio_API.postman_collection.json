@@ -1,0 +1,761 @@
+{
+	"info": {
+		"_postman_id": "public-portfolio-api",
+		"name": "Public Portfolio API - Testing",
+		"description": "اختبار جميع الـ Public Endpoints للبورتفوليو",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:4000",
+			"type": "string"
+		},
+		{
+			"key": "company_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "portfolio_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Portfolio - All Works",
+			"item": [
+				{
+					"name": "Get All Portfolio Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							]
+						},
+						"description": "عرض جميع الأعمال (Individual + Corporate)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Item By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/{{portfolio_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"{{portfolio_id}}"
+							]
+						},
+						"description": "عرض عمل واحد محدد"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Stats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/stats",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"stats"
+							]
+						},
+						"description": "إحصائيات الأعمال"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolio - Filter by Type",
+			"item": [
+				{
+					"name": "Get All Logos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/LOGO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"LOGO"
+							]
+						},
+						"description": "عرض جميع الشعارات (Individual + Corporate)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Reels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/REEL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"REEL"
+							]
+						},
+						"description": "عرض جميع الريلز (Individual + Corporate)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Websites",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/WEBSITE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"WEBSITE"
+							]
+						},
+						"description": "عرض جميع المواقع (Individual + Corporate)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Social Media Posts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/SOCIAL_MEDIA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"SOCIAL_MEDIA"
+							]
+						},
+						"description": "عرض جميع منشورات السوشيال ميديا"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolio - Filter by Category",
+			"item": [
+				{
+					"name": "Get Individual Works Only",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?category=INDIVIDUAL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "INDIVIDUAL"
+								}
+							]
+						},
+						"description": "عرض الأعمال الفردية فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Corporate Works Only",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?category=CORPORATE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "CORPORATE"
+								}
+							]
+						},
+						"description": "عرض أعمال الشركات فقط"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolio - Combined Filters",
+			"item": [
+				{
+					"name": "Individual Logos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?type=LOGO&category=INDIVIDUAL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "LOGO"
+								},
+								{
+									"key": "category",
+									"value": "INDIVIDUAL"
+								}
+							]
+						},
+						"description": "شعارات العملاء الأفراد فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Corporate Logos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?type=LOGO&category=CORPORATE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "LOGO"
+								},
+								{
+									"key": "category",
+									"value": "CORPORATE"
+								}
+							]
+						},
+						"description": "شعارات الشركات فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Corporate Reels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/REEL?category=CORPORATE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"REEL"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "CORPORATE"
+								}
+							]
+						},
+						"description": "ريلز الشركات فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Individual Social Media",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio/type/SOCIAL_MEDIA?category=INDIVIDUAL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio",
+								"type",
+								"SOCIAL_MEDIA"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "INDIVIDUAL"
+								}
+							]
+						},
+						"description": "سوشيال ميديا للأفراد فقط"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Companies",
+			"item": [
+				{
+					"name": "Get All Companies",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.companies && jsonData.companies.length > 0) {",
+									"        pm.environment.set(\"company_id\", jsonData.companies[0].id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies"
+							]
+						},
+						"description": "عرض جميع الشركات مع عدد أعمالها"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}"
+							]
+						},
+						"description": "عرض شركة محددة مع جميع أعمالها"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Portfolio (All Works)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}/portfolio",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}",
+								"portfolio"
+							]
+						},
+						"description": "عرض جميع أعمال شركة محددة"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Logos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}/portfolio?type=LOGO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "LOGO"
+								}
+							]
+						},
+						"description": "عرض شعارات شركة محددة فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Websites",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}/portfolio?type=WEBSITE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "WEBSITE"
+								}
+							]
+						},
+						"description": "عرض مواقع شركة محددة فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Reels",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}/portfolio?type=REEL",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "REEL"
+								}
+							]
+						},
+						"description": "عرض ريلز شركة محددة فقط"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Social Media",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/companies/{{company_id}}/portfolio?type=SOCIAL_MEDIA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"companies",
+								"{{company_id}}",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "type",
+									"value": "SOCIAL_MEDIA"
+								}
+							]
+						},
+						"description": "عرض سوشيال ميديا شركة محددة فقط"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Portfolio - Filter by Company",
+			"item": [
+				{
+					"name": "Get Works by Company ID (All Types)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?companyId={{company_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "{{company_id}}"
+								}
+							]
+						},
+						"description": "عرض جميع أعمال شركة محددة (طريقة بديلة)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Logos (Alternative)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/portfolio?companyId={{company_id}}&type=LOGO",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"portfolio"
+							],
+							"query": [
+								{
+									"key": "companyId",
+									"value": "{{company_id}}"
+								},
+								{
+									"key": "type",
+									"value": "LOGO"
+								}
+							]
+						},
+						"description": "عرض شعارات شركة محددة (طريقة بديلة)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Config API",
+			"item": [
+				{
+					"name": "Get Site Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config"
+							]
+						},
+						"description": "عرض إعدادات الموقع (للفوتر، روابط السوشيال، إلخ)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Contact API",
+			"item": [
+				{
+					"name": "Submit Contact Form",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"أحمد محمد\",\n  \"email\": \"ahmad@example.com\",\n  \"phone\": \"+963987654321\",\n  \"subject\": \"استفسار عن خدماتكم\",\n  \"message\": \"مرحباً، أود الاستفسار عن خدمات التصميم المتوفرة لديكم. هل يمكنكم مساعدتي؟\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/contact",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"contact"
+							]
+						},
+						"description": "إرسال رسالة تواصل (Public - لا يحتاج Auth)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SEO API",
+			"item": [
+				{
+					"name": "Get Sitemap XML",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sitemap.xml",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sitemap.xml"
+							]
+						},
+						"description": "عرض sitemap.xml"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Robots.txt",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/robots.txt",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"robots.txt"
+							]
+						},
+						"description": "عرض robots.txt"
+					},
+					"response": []
+				},
+				{
+					"name": "Get SEO Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"config"
+							]
+						},
+						"description": "عرض إعدادات SEO"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Metadata by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/metadata/{{portfolio_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"metadata",
+								"{{portfolio_id}}"
+							]
+						},
+						"description": "عرض metadata لعمل محدد (Open Graph, Twitter Cards)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Portfolio Metadata by Slug",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/seo/metadata/slug/شعار",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"seo",
+								"metadata",
+								"slug",
+								"شعار"
+							]
+						},
+						"description": "عرض metadata بواسطة slug"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

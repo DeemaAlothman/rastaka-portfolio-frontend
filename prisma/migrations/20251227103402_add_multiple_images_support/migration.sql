@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "PortfolioItem" ADD COLUMN     "mediaUrls" TEXT,
+ALTER COLUMN "description" DROP NOT NULL,
+ALTER COLUMN "mediaUrl" DROP NOT NULL,
+ALTER COLUMN "mediaType" DROP NOT NULL,
+ALTER COLUMN "mediaType" DROP DEFAULT;

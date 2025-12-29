@@ -1,38 +1,25 @@
-// src/middlewares/auth.js
-import jwt from "jsonwebtoken";
+// src/middleware/auth.js
+import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev_secret_key_change_me";
-
-// ✅ Middleware للتحقق من JWT
-export function auth(req, res, next) {
-  const authHeader = req.headers.authorization || "";
-
-  if (!authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Authorization header missing" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
+export const authenticateAdmin = (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = {
-      id: decoded.userId,
-      role: decoded.role,
-      email: decoded.email,
-    };
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        error: 'غير مصرح - لا يوجد token'
+      });
+    }
+
+    const token = authHeader.substring(7);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.adminId = decoded.adminId;
+
     next();
   } catch (error) {
-    console.error("JWT verification error:", error);
-    return res.status(401).json({ error: "Invalid or expired token" });
+    return res.status(401).json({
+      error: 'غير مصرح - token غير صالح'
+    });
   }
-}
-
-// ✅ Middleware لتقييد الوصول حسب الدور
-export function allowRoles(...roles) {
-  return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
-    next();
-  };
-}
+};

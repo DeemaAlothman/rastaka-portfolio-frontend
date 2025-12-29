@@ -9,143 +9,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Client {
-  id          BigInt   @id @default(autoincrement())
-  name        String
-  type        ClientType
-  slug        String   @unique
-  description String? 
-  websiteUrl  String?
-  logoUrl     String?
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  works       Work[]
+// Admin User Model
+model Admin {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Work {
-  id           BigInt    @id @default(autoincrement())
-  client       Client    @relation(fields: [clientId], references: [id])
-  clientId     BigInt
-
-  type         WorkType
-  status       WorkStatus @default(PUBLISHED)
-
-  title        String
-  slug         String     @unique
-  shortDesc    String?
-  heroSubtitle String?
-  publishDate  DateTime?
-  visitUrl     String?
-  isFeatured   Boolean    @default(false)
+// Company/Client Model
+model Company {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  logo        String?
 
   // SEO fields
-  seoTitle       String?
+  slug        String?        @unique
+  seoTitle    String?
   seoDescription String?
-  seoKeywords    String?  // ممكن تخزنيها كـ "keyword1, keyword2, keyword3"
-
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  sections     WorkSection[]
-  media        Media[]
-  tags         WorkTag[]
-}
-
-model WorkSection {
-  id          BigInt         @id @default(autoincrement())
-  work        Work           @relation(fields: [workId], references: [id])
-  workId      BigInt
-
-  sectionType SectionType
-  title       String
-  body        String
-  sortOrder   Int            @default(0)
-  highlight   Boolean        @default(false)
+  seoKeywords String?
 
   createdAt   DateTime       @default(now())
-
-  media       Media[]
+  updatedAt   DateTime       @updatedAt
+  portfolioItems PortfolioItem[]
 }
 
-model Media {
-  id           BigInt     @id @default(autoincrement())
-  work         Work       @relation(fields: [workId], references: [id])
-  workId       BigInt
+// Portfolio Item Model
+model PortfolioItem {
+  id          String       @id @default(uuid())
+  title       String
+  description String?
+  type        WorkType
+  category    WorkCategory
 
-  section      WorkSection? @relation(fields: [sectionId], references: [id])
-  sectionId    BigInt?
+  // For websites
+  websiteUrl  String?
 
-  fileType     MediaType
-  fileUrl      String
-  thumbnailUrl String?
-  altText      String?
-  isPrimary    Boolean    @default(false)
-  sortOrder    Int        @default(0)
+  // Media files - single or multiple
+  mediaUrl    String?      // For single media (LOGO, REEL, WEBSITE)
+  mediaType   MediaType?   // IMAGE or VIDEO
+  mediaUrls   String?      // JSON array for multiple images (SOCIAL_MEDIA)
 
-  createdAt    DateTime   @default(now())
+  // Client info (for individual work)
+  clientName  String?
+
+  // Company relation (for corporate work)
+  companyId   String?
+  company     Company?     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // SEO fields
+  slug        String?      @unique
+  seoTitle    String?
+  seoDescription String?
+  keywords    String?
+
+  publishDate DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([type])
+  @@index([category])
+  @@index([companyId])
+  @@index([slug])
 }
 
-model Tag {
-  id       BigInt    @id @default(autoincrement())
-  name     String
-  slug     String    @unique
-
-  works    WorkTag[]
+// SEO Configuration Model
+model SeoConfig {
+  id              String   @id @default(uuid())
+  siteTitle       String   @default("Rastaka Portfolio")
+  siteDescription String   @default("معرض أعمال شركة Rastaka")
+  siteKeywords    String   @default("تصميم, تطوير, ريلز, شعارات")
+  ogImage         String?
+  twitterHandle   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-model WorkTag {
-  work   Work @relation(fields: [workId], references: [id])
-  workId BigInt
-
-  tag    Tag  @relation(fields: [tagId], references: [id])
-  tagId  BigInt
-
-  @@id([workId, tagId])
+// Site Configuration Model
+model Config {
+  id              String   @id @default(uuid())
+  siteName        String   @default("Rastaka")
+  siteDescription String?
+  email           String?
+  phone           String?
+  address         String?
+  facebookUrl     String?
+  instagramUrl    String?
+  twitterUrl      String?
+  linkedinUrl     String?
+  youtubeUrl      String?
+  whatsappNumber  String?
+  footerText      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-// Admin users (لو حبيتي تعملي لوحة تحكم)
-model AdminUser {
-  id           BigInt   @id @default(autoincrement())
-  fullName     String
-  email        String   @unique
-  passwordHash String
-  role         AdminRole @default(EDITOR)
-  isActive     Boolean  @default(true)
+// Contact Submission Model
+model ContactSubmission {
+  id        String              @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  status    ContactStatus       @default(UNREAD)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  @@index([status])
+  @@index([createdAt])
 }
 
-// ========= ENUMS =========
-
-enum ClientType {
-  INDIVIDUAL
-  COMPANY
-}
-
+// Enums
 enum WorkType {
-  LOGO
   WEBSITE
-  SOCIAL_MEDIA
+  LOGO
   REEL
+  SOCIAL_MEDIA
 }
 
-enum WorkStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum SectionType {
-  OVERVIEW
-  GOALS
-  PROCESS
-  RESULTS
-  BRAND_STORY
-  TECH_STACK
-  OTHER
+enum WorkCategory {
+  INDIVIDUAL
+  CORPORATE
 }
 
 enum MediaType {
@@ -153,8 +141,8 @@ enum MediaType {
   VIDEO
 }
 
-enum AdminRole {
-  ADMIN
-  EDITOR
-  VIEWER
+enum ContactStatus {
+  UNREAD
+  READ
+  ARCHIVED
 }

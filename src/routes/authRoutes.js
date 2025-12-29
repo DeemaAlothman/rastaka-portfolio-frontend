@@ -1,21 +1,17 @@
 // src/routes/authRoutes.js
-import express from "express";
-import {
-  registerAdmin,
-  loginAdmin,
-  getMe,
-} from "../controllers/authController.js";
-import { auth } from "../middleware/auth.js";
+import express from 'express';
+import { registerAdmin, loginAdmin, getCurrentAdmin } from '../controllers/authController.js';
+import { authenticateAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// ⚠️ استخدمي /auth/register أول مرة فقط لإنشاء أول أدمن
-router.post("/register", registerAdmin);
+// تسجيل أدمن جديد (استخدمها مرة واحدة فقط)
+router.post('/register', registerAdmin);
 
-// تسجيل دخول
-router.post("/login", loginAdmin);
+// تسجيل الدخول
+router.post('/login', loginAdmin);
 
-// بيانات الأدمن الحالي
-router.get("/me", auth, getMe);
+// الحصول على معلومات الأدمن الحالي
+router.get('/me', authenticateAdmin, getCurrentAdmin);
 
 export default router;
