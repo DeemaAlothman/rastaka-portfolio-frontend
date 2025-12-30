@@ -9,6 +9,7 @@ import companyRoutes from "./routes/companyRoutes.js";
 import seoRoutes from "./routes/seoRoutes.js";
 import configRoutes from "./routes/configRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import path from "path";
 
 // ✅ حل مشكلة BigInt مع JSON
 BigInt.prototype.toJSON = function () {
@@ -23,7 +24,7 @@ const prisma = new PrismaClient();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // --------- Routes ---------
 

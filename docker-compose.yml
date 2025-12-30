@@ -43,6 +43,7 @@ services:
 
       JWT_SECRET: ${JWT_SECRET:-super_secret_long_token_key_change_me_in_production}
       JWT_EXPIRES_IN: 7d
+      BASE_URL: ${BASE_URL}
 
       # 👇 to stop "Secure variable is not set" warnings if referenced anywhere
       Secure: ${Secure:-}
