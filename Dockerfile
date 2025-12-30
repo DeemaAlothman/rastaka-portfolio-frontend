@@ -13,4 +13,5 @@ RUN mkdir -p uploads
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma generate && npx prisma migrate deploy && node src/server.js"]
+CMD ["sh", "-c", "export DATABASE_URL=\"$DATABASE_URL\" && npx prisma generate && npx prisma migrate deploy && node src/server.js"]
+
