@@ -49,7 +49,8 @@ services:
     volumes:
       - ./uploads:/app/uploads
     ports:
-      - "4000:4000"
+     - "4010:4000"
+
     depends_on:
       postgres:
         condition: service_healthy
