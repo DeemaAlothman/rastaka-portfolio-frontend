@@ -27,46 +27,61 @@ export const createPortfolioItem = async (req, res) => {
       return res.status(400).json({ error: 'الأعمال الفردية لا يمكن ربطها بشركة' });
     }
 
-    // توليد slug تلقائياً
-    const slug = await generateUniqueSlug(prisma.portfolioItem, title);
-
-    const data = {
+    // البيانات المشتركة لجميع السجلات
+    const commonData = {
       title,
       description: description || null,
       type,
       category,
-      slug,
       websiteUrl: websiteUrl || null,
       clientName: category === 'INDIVIDUAL' ? clientName : null,
       companyId: category === 'CORPORATE' ? companyId : null,
       publishDate: publishDate ? new Date(publishDate) : new Date()
     };
 
-    // معالجة الملفات حسب نوع العمل
-    if (type === 'SOCIAL_MEDIA') {
-      // صور متعددة للسوشيال ميديا
-      const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
-      data.mediaUrls = JSON.stringify(imageUrls);
-    } else {
-      // ملف واحد للباقي (LOGO, REEL, WEBSITE)
+    // WEBSITE = ملف واحد فقط، الباقي كل ملف ينشئ سجل منفصل
+    if (type === 'WEBSITE') {
+      const slug = await generateUniqueSlug(prisma.portfolioItem, title);
       const file = req.files[0];
-      data.mediaUrl = `/uploads/${file.filename}`;
-      data.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+
+      const portfolioItem = await prisma.portfolioItem.create({
+        data: {
+          ...commonData,
+          slug,
+          mediaUrl: `/uploads/${file.filename}`,
+          mediaType: file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE'
+        },
+        include: { company: true }
+      });
+
+      const transformedItem = transformPortfolioItem(portfolioItem);
+      return res.status(201).json({
+        message: 'تم إضافة العمل بنجاح',
+        portfolioItem: transformedItem
+      });
     }
 
-    const portfolioItem = await prisma.portfolioItem.create({
-      data,
-      include: {
-        company: true
-      }
-    });
+    // LOGO, REEL, SOCIAL_MEDIA - كل ملف ينشئ سجل منفصل بنفس البيانات
+    const createdItems = [];
+    for (const file of req.files) {
+      const slug = await generateUniqueSlug(prisma.portfolioItem, title);
 
-    // تحويل المسارات النسبية إلى URLs كاملة
-    const transformedItem = transformPortfolioItem(portfolioItem);
+      const portfolioItem = await prisma.portfolioItem.create({
+        data: {
+          ...commonData,
+          slug,
+          mediaUrl: `/uploads/${file.filename}`,
+          mediaType: file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE'
+        },
+        include: { company: true }
+      });
+
+      createdItems.push(transformPortfolioItem(portfolioItem));
+    }
 
     res.status(201).json({
-      message: 'تم إضافة العمل بنجاح',
-      portfolioItem: transformedItem
+      message: `تم إضافة ${createdItems.length} عمل بنجاح`,
+      portfolioItems: createdItems
     });
   } catch (error) {
     console.error('Error in createPortfolioItem:', error);
@@ -207,25 +222,11 @@ export const updatePortfolioItem = async (req, res) => {
       ...(publishDate && { publishDate: new Date(publishDate) })
     };
 
-    // إذا تم رفع ملفات جديدة
+    // إذا تم رفع ملف جديد - التحديث يكون لسجل واحد فقط (ملف واحد)
     if (req.files && req.files.length > 0) {
-      const typeToUse = type || existingItem.type;
-
-      if (typeToUse === 'SOCIAL_MEDIA') {
-        // صور متعددة للسوشيال ميديا
-        const imageUrls = req.files.map(file => `/uploads/${file.filename}`);
-        updateData.mediaUrls = JSON.stringify(imageUrls);
-        // مسح الملف الفردي القديم إن وجد
-        updateData.mediaUrl = null;
-        updateData.mediaType = null;
-      } else {
-        // ملف واحد للباقي (LOGO, REEL, WEBSITE)
-        const file = req.files[0];
-        updateData.mediaUrl = `/uploads/${file.filename}`;
-        updateData.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
-        // مسح الملفات المتعددة القديمة إن وجدت
-        updateData.mediaUrls = null;
-      }
+      const file = req.files[0];
+      updateData.mediaUrl = `/uploads/${file.filename}`;
+      updateData.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
     }
 
     const portfolioItem = await prisma.portfolioItem.update({
