@@ -36,7 +36,7 @@ services:
     restart: always
     environment:
       NODE_ENV: production
-      PORT: 4000
+      PORT: 4050
 
       # 👇 runtime DATABASE_URL (same as build)
       DATABASE_URL: ${DATABASE_URL}
@@ -50,7 +50,7 @@ services:
     volumes:
       - ./uploads:/app/uploads
     ports:
-     - "4010:4000"
+     - "4050:4050"
 
     depends_on:
       postgres:
