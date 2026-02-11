@@ -10,8 +10,8 @@ export const createPortfolioItem = async (req, res) => {
   try {
     const { title, description, type, category, websiteUrl, clientName, companyId, publishDate } = req.body;
 
-    if (!title || !type || !category) {
-      return res.status(400).json({ error: 'الحقول المطلوبة: title, type, category' });
+    if (!type || !category) {
+      return res.status(400).json({ error: 'الحقول المطلوبة: type, category' });
     }
 
     if (!req.files || req.files.length === 0) {
@@ -29,7 +29,7 @@ export const createPortfolioItem = async (req, res) => {
 
     // البيانات المشتركة لجميع السجلات
     const commonData = {
-      title,
+      title: title || null,
       description: description || null,
       type,
       category,
@@ -41,7 +41,8 @@ export const createPortfolioItem = async (req, res) => {
 
     // WEBSITE = ملف واحد فقط، الباقي كل ملف ينشئ سجل منفصل
     if (type === 'WEBSITE') {
-      const slug = await generateUniqueSlug(prisma.portfolioItem, title);
+      const slugBase = title || `website-${Date.now()}`;
+      const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
       const file = req.files[0];
 
       const portfolioItem = await prisma.portfolioItem.create({
@@ -64,7 +65,8 @@ export const createPortfolioItem = async (req, res) => {
     // LOGO, REEL, SOCIAL_MEDIA - كل ملف ينشئ سجل منفصل بنفس البيانات
     const createdItems = [];
     for (const file of req.files) {
-      const slug = await generateUniqueSlug(prisma.portfolioItem, title);
+      const slugBase = title || `${type.toLowerCase()}-${Date.now()}`;
+      const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
 
       const portfolioItem = await prisma.portfolioItem.create({
         data: {
