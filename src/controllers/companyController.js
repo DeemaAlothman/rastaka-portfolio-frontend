@@ -5,6 +5,12 @@ import { transformCompany, transformPortfolioItem } from '../utils/urlHelper.js'
 
 const prisma = new PrismaClient();
 
+// Helper function للتحقق من UUID
+function isValidUUID(str) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
 // إنشاء شركة جديدة
 export const createCompany = async (req, res) => {
   try {
@@ -66,13 +72,19 @@ export const getAllCompanies = async (req, res) => {
   }
 };
 
-// الحصول على شركة واحدة بالـ ID
+// الحصول على شركة واحدة بالـ ID أو slug
 export const getCompanyById = async (req, res) => {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
+
+    // فك تشفير URL encoding
+    id = decodeURIComponent(id);
+
+    // تحديد إذا كان UUID أو slug
+    const whereClause = isValidUUID(id) ? { id } : { slug: id };
 
     const company = await prisma.company.findUnique({
-      where: { id },
+      where: whereClause,
       include: {
         portfolioItems: {
           orderBy: {
@@ -98,11 +110,17 @@ export const getCompanyById = async (req, res) => {
 // الحصول على أعمال شركة معينة
 export const getCompanyPortfolio = async (req, res) => {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
     const { type } = req.query;
 
+    // فك تشفير URL encoding
+    id = decodeURIComponent(id);
+
+    // تحديد إذا كان UUID أو slug
+    const whereClause = isValidUUID(id) ? { id } : { slug: id };
+
     const company = await prisma.company.findUnique({
-      where: { id },
+      where: whereClause,
       select: {
         id: true,
         name: true,
@@ -115,7 +133,7 @@ export const getCompanyPortfolio = async (req, res) => {
       return res.status(404).json({ error: 'الشركة غير موجودة' });
     }
 
-    const where = { companyId: id };
+    const where = { companyId: company.id };
     if (type) where.type = type;
 
     const portfolioItems = await prisma.portfolioItem.findMany({
