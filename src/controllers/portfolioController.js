@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 // إنشاء عمل جديد
 export const createPortfolioItem = async (req, res) => {
   try {
-    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate } = req.body;
+    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag } = req.body;
 
     if (!type || !category) {
       return res.status(400).json({ error: 'الحقول المطلوبة: type, category' });
@@ -33,6 +33,7 @@ export const createPortfolioItem = async (req, res) => {
       description: description || null,
       type,
       category,
+      tag: tag || null,
       websiteUrl: websiteUrl || null,
       clientName: category === 'INDIVIDUAL' ? clientName : null,
       companyId: category === 'CORPORATE' ? companyId : null,
@@ -203,7 +204,7 @@ export const getPortfolioItemsByType = async (req, res) => {
 export const updatePortfolioItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate } = req.body;
+    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag } = req.body;
 
     const existingItem = await prisma.portfolioItem.findUnique({
       where: { id }
@@ -214,13 +215,16 @@ export const updatePortfolioItem = async (req, res) => {
     }
 
     const updateData = {
-      ...(title && { title }),
+      ...(title !== undefined && { title: title || null }),
       ...(description !== undefined && { description }),
       ...(type && { type }),
       ...(category && { category }),
       ...(websiteUrl !== undefined && { websiteUrl }),
       ...(clientName !== undefined && { clientName }),
-      ...(companyId !== undefined && { companyId }),
+      ...(companyId !== undefined && {
+        company: companyId ? { connect: { id: companyId } } : { disconnect: true }
+      }),
+      ...(tag !== undefined && { tag: tag || null }),
       ...(publishDate && { publishDate: new Date(publishDate) })
     };
 

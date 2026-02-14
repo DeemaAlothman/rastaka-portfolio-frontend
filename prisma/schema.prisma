@@ -53,6 +53,9 @@ model PortfolioItem {
   mediaType   MediaType?   // IMAGE or VIDEO
   mediaUrls   String?      // JSON array for multiple images (SOCIAL_MEDIA)
 
+  // Tag/badge (اختياري - مثلاً "موشن جرافيك" للريلز)
+  tag         String?
+
   // Client info (for individual work)
   clientName  String?
 
