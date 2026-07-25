@@ -95,13 +95,14 @@ export const createPortfolioItem = async (req, res) => {
 // الحصول على جميع الأعمال (مع فلترة)
 export const getAllPortfolioItems = async (req, res) => {
   try {
-    const { type, category, companyId } = req.query;
+    const { type, category, companyId, clientName } = req.query;
 
     const where = {};
 
     if (type) where.type = type;
     if (category) where.category = category;
     if (companyId) where.companyId = companyId;
+    if (clientName) where.clientName = { equals: clientName, mode: 'insensitive' };
 
     const portfolioItems = await prisma.portfolioItem.findMany({
       where,
