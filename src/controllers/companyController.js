@@ -76,6 +76,7 @@ export const getAllCompanies = async (req, res) => {
 export const getCompanyById = async (req, res) => {
   try {
     let { id } = req.params;
+    const { limit, offset } = req.query;
 
     // فك تشفير URL encoding
     id = decodeURIComponent(id);
@@ -83,22 +84,31 @@ export const getCompanyById = async (req, res) => {
     // تحديد إذا كان UUID أو slug
     const whereClause = isValidUUID(id) ? { id } : { slug: id };
 
-    const company = await prisma.company.findUnique({
-      where: whereClause,
-      include: {
-        portfolioItems: {
-          orderBy: {
-            publishDate: 'desc'
-          }
-        }
-      }
-    });
+    const company = await prisma.company.findUnique({ where: whereClause });
 
     if (!company) {
       return res.status(404).json({ error: 'الشركة غير موجودة' });
     }
 
+    // limit/offset اختياريين - لو ما انبعتوا، بيرجع كل أعمال الشركة زي ما كان (توافق كامل مع الكود القديم)
+    const take = limit ? parseInt(limit, 10) : undefined;
+    const skip = offset ? parseInt(offset, 10) : undefined;
+
+    const itemsWhere = { companyId: company.id };
+
+    const [portfolioItems, portfolioItemsCount] = await Promise.all([
+      prisma.portfolioItem.findMany({
+        where: itemsWhere,
+        orderBy: { publishDate: 'desc' },
+        ...(take !== undefined && { take }),
+        ...(skip !== undefined && { skip })
+      }),
+      prisma.portfolioItem.count({ where: itemsWhere })
+    ]);
+
     const transformedCompany = transformCompany(company);
+    transformedCompany.portfolioItems = portfolioItems.map((item) => transformPortfolioItem(item));
+    transformedCompany.portfolioItemsCount = portfolioItemsCount;
 
     res.json({ company: transformedCompany });
   } catch (error) {
