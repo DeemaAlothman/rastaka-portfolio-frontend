@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 // إنشاء عمل جديد
 export const createPortfolioItem = async (req, res) => {
   try {
-    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag } = req.body;
+    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag, displayMode } = req.body;
 
     if (!type || !category) {
       return res.status(400).json({ error: 'الحقول المطلوبة: type, category' });
@@ -63,7 +63,32 @@ export const createPortfolioItem = async (req, res) => {
       });
     }
 
-    // LOGO, REEL, SOCIAL_MEDIA - كل ملف ينشئ سجل منفصل بنفس البيانات
+    // LOGO, REEL, SOCIAL_MEDIA - وضع الكاروسيل: كل الملفات تنضم لسجل واحد (mediaUrls)
+    if (displayMode === 'carousel' && req.files.length > 1) {
+      const slugBase = title || `${type.toLowerCase()}-${Date.now()}`;
+      const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
+      const mediaUrls = req.files.map((f) => `/uploads/${f.filename}`);
+      const firstFile = req.files[0];
+
+      const portfolioItem = await prisma.portfolioItem.create({
+        data: {
+          ...commonData,
+          slug,
+          mediaUrl: mediaUrls[0],
+          mediaType: firstFile.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE',
+          mediaUrls: JSON.stringify(mediaUrls)
+        },
+        include: { company: true }
+      });
+
+      const transformedItem = transformPortfolioItem(portfolioItem);
+      return res.status(201).json({
+        message: 'تم إضافة العمل بنجاح (كاروسيل)',
+        portfolioItem: transformedItem
+      });
+    }
+
+    // LOGO, REEL, SOCIAL_MEDIA - وضع منفرد (افتراضي): كل ملف ينشئ سجل منفصل بنفس البيانات
     const createdItems = [];
     for (const file of req.files) {
       const slugBase = title || `${type.toLowerCase()}-${Date.now()}`;
@@ -133,13 +158,15 @@ export const getAllPortfolioItems = async (req, res) => {
   }
 };
 
-// الحصول على عمل واحد بالـ ID
+// الحصول على عمل واحد بالـ ID أو الـ slug
 export const getPortfolioItemById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const portfolioItem = await prisma.portfolioItem.findUnique({
-      where: { id },
+    const portfolioItem = await prisma.portfolioItem.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }]
+      },
       include: {
         company: true
       }
@@ -205,7 +232,7 @@ export const getPortfolioItemsByType = async (req, res) => {
 export const updatePortfolioItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag } = req.body;
+    const { title, description, type, category, websiteUrl, clientName, companyId, publishDate, tag, displayMode } = req.body;
 
     const existingItem = await prisma.portfolioItem.findUnique({
       where: { id }
@@ -229,11 +256,27 @@ export const updatePortfolioItem = async (req, res) => {
       ...(publishDate && { publishDate: new Date(publishDate) })
     };
 
-    // إذا تم رفع ملف جديد - التحديث يكون لسجل واحد فقط (ملف واحد)
+    // إذا تم رفع ملفات جديدة
     if (req.files && req.files.length > 0) {
-      const file = req.files[0];
-      updateData.mediaUrl = `/uploads/${file.filename}`;
-      updateData.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+      // كاروسيل: إما مطلوب صراحة، أو السجل كان أصلاً كاروسيل ولم يُطلب تحويله لمنفرد
+      const wantsCarousel = displayMode === 'carousel'
+        || (displayMode === undefined && !!existingItem.mediaUrls);
+
+      if (wantsCarousel && req.files.length > 1) {
+        const mediaUrls = req.files.map((f) => `/uploads/${f.filename}`);
+        updateData.mediaUrl = mediaUrls[0];
+        updateData.mediaType = req.files[0].mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+        updateData.mediaUrls = JSON.stringify(mediaUrls);
+      } else {
+        // تحديث لسجل منفرد (ملف واحد يستبدل القديم)
+        const file = req.files[0];
+        updateData.mediaUrl = `/uploads/${file.filename}`;
+        updateData.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
+        if (displayMode === 'single') {
+          // تحويل صريح من كاروسيل إلى منفرد
+          updateData.mediaUrls = null;
+        }
+      }
     }
 
     const portfolioItem = await prisma.portfolioItem.update({
