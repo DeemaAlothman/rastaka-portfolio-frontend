@@ -120,7 +120,7 @@ export const createPortfolioItem = async (req, res) => {
 // الحصول على جميع الأعمال (مع فلترة)
 export const getAllPortfolioItems = async (req, res) => {
   try {
-    const { type, category, companyId, clientName } = req.query;
+    const { type, category, companyId, clientName, limit, offset } = req.query;
 
     const where = {};
 
@@ -129,27 +129,36 @@ export const getAllPortfolioItems = async (req, res) => {
     if (companyId) where.companyId = companyId;
     if (clientName) where.clientName = { equals: clientName, mode: 'insensitive' };
 
-    const portfolioItems = await prisma.portfolioItem.findMany({
-      where,
-      include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            logo: true
+    // limit/offset اختياريين - لو ما انبعتوا، بيرجع كل النتائج زي ما كان (توافق كامل مع الكود القديم)
+    const take = limit ? parseInt(limit, 10) : undefined;
+    const skip = offset ? parseInt(offset, 10) : undefined;
+
+    const [portfolioItems, total] = await Promise.all([
+      prisma.portfolioItem.findMany({
+        where,
+        include: {
+          company: {
+            select: {
+              id: true,
+              name: true,
+              logo: true
+            }
           }
-        }
-      },
-      orderBy: {
-        publishDate: 'desc'
-      }
-    });
+        },
+        orderBy: {
+          publishDate: 'desc'
+        },
+        ...(take !== undefined && { take }),
+        ...(skip !== undefined && { skip })
+      }),
+      prisma.portfolioItem.count({ where })
+    ]);
 
     // تحويل جميع الأعمال
     const transformedItems = portfolioItems.map(item => transformPortfolioItem(item));
 
     res.json({
-      count: transformedItems.length,
+      count: total,
       portfolioItems: transformedItems
     });
   } catch (error) {
