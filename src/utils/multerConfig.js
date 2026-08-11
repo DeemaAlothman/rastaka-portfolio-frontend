@@ -13,8 +13,21 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
-    const name = path.basename(file.originalname, ext);
-    cb(null, name + '-' + uniqueSuffix + ext);
+    const rawName = path.basename(file.originalname, ext);
+
+    // تقصير الاسم الأصلي لتفادي ENAMETOOLONG: أسماء عربية/إيموجي طويلة
+    // ممكن توصل لمئات البايتات بترميز UTF-8 وتتجاوز حد نظام الملفات (255 بايت)
+    let safeName = '';
+    let byteLength = 0;
+    for (const char of rawName) {
+      const charBytes = Buffer.byteLength(char, 'utf8');
+      if (byteLength + charBytes > 60) break;
+      safeName += char;
+      byteLength += charBytes;
+    }
+    safeName = safeName.trim() || 'file';
+
+    cb(null, safeName + '-' + uniqueSuffix + ext);
   }
 });
 
