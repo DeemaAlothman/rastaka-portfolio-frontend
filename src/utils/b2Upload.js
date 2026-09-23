@@ -56,8 +56,9 @@ export const uploadFileToB2 = async (localFilePath, remoteKey, contentType) => {
       ContentType: contentType,
     }));
 
+    // ترميز اسم الملف بالرابط (مسافات/حروف عربية) عشان يشتغل كرابط صالح بأي مكان
     const base = B2_PUBLIC_BASE_URL.replace(/\/$/, '');
-    return `${base}/${remoteKey}`;
+    return `${base}/${encodeURIComponent(remoteKey)}`;
   } catch (error) {
     console.error('B2 upload failed, keeping local file as fallback:', error.message);
     return null;
