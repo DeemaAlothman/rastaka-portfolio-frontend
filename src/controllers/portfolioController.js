@@ -2,6 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
 import { transformPortfolioItem } from '../utils/urlHelper.js';
+import { resolveUploadedMediaUrl } from '../utils/b2Upload.js';
 
 const prisma = new PrismaClient();
 
@@ -45,12 +46,13 @@ export const createPortfolioItem = async (req, res) => {
       const slugBase = title || `website-${Date.now()}`;
       const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
       const file = req.files[0];
+      const mediaUrl = await resolveUploadedMediaUrl(file);
 
       const portfolioItem = await prisma.portfolioItem.create({
         data: {
           ...commonData,
           slug,
-          mediaUrl: `/uploads/${file.filename}`,
+          mediaUrl,
           mediaType: file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE'
         },
         include: { company: true }
@@ -67,7 +69,7 @@ export const createPortfolioItem = async (req, res) => {
     if (displayMode === 'carousel' && req.files.length > 1) {
       const slugBase = title || `${type.toLowerCase()}-${Date.now()}`;
       const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
-      const mediaUrls = req.files.map((f) => `/uploads/${f.filename}`);
+      const mediaUrls = await Promise.all(req.files.map((f) => resolveUploadedMediaUrl(f)));
       const firstFile = req.files[0];
 
       const portfolioItem = await prisma.portfolioItem.create({
@@ -93,12 +95,13 @@ export const createPortfolioItem = async (req, res) => {
     for (const file of req.files) {
       const slugBase = title || `${type.toLowerCase()}-${Date.now()}`;
       const slug = await generateUniqueSlug(prisma.portfolioItem, slugBase);
+      const mediaUrl = await resolveUploadedMediaUrl(file);
 
       const portfolioItem = await prisma.portfolioItem.create({
         data: {
           ...commonData,
           slug,
-          mediaUrl: `/uploads/${file.filename}`,
+          mediaUrl,
           mediaType: file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE'
         },
         include: { company: true }
@@ -272,14 +275,14 @@ export const updatePortfolioItem = async (req, res) => {
         || (displayMode === undefined && !!existingItem.mediaUrls);
 
       if (wantsCarousel && req.files.length > 1) {
-        const mediaUrls = req.files.map((f) => `/uploads/${f.filename}`);
+        const mediaUrls = await Promise.all(req.files.map((f) => resolveUploadedMediaUrl(f)));
         updateData.mediaUrl = mediaUrls[0];
         updateData.mediaType = req.files[0].mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
         updateData.mediaUrls = JSON.stringify(mediaUrls);
       } else {
         // تحديث لسجل منفرد (ملف واحد يستبدل القديم)
         const file = req.files[0];
-        updateData.mediaUrl = `/uploads/${file.filename}`;
+        updateData.mediaUrl = await resolveUploadedMediaUrl(file);
         updateData.mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
         if (displayMode === 'single') {
           // تحويل صريح من كاروسيل إلى منفرد

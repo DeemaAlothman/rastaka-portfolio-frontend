@@ -2,6 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { generateUniqueSlug } from '../utils/slugify.js';
 import { transformCompany, transformPortfolioItem } from '../utils/urlHelper.js';
+import { resolveUploadedMediaUrl } from '../utils/b2Upload.js';
 
 const prisma = new PrismaClient();
 
@@ -22,12 +23,13 @@ export const createCompany = async (req, res) => {
 
     // توليد slug تلقائياً
     const slug = await generateUniqueSlug(prisma.company, name);
+    const logo = req.file ? await resolveUploadedMediaUrl(req.file) : null;
 
     const data = {
       name,
       description: description || null,
       slug,
-      logo: req.file ? `/uploads/${req.file.filename}` : null
+      logo
     };
 
     const company = await prisma.company.create({
@@ -187,7 +189,7 @@ export const updateCompany = async (req, res) => {
     };
 
     if (req.file) {
-      updateData.logo = `/uploads/${req.file.filename}`;
+      updateData.logo = await resolveUploadedMediaUrl(req.file);
     }
 
     const company = await prisma.company.update({
