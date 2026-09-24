@@ -132,6 +132,7 @@ enum WorkType {
   LOGO
   REEL
   SOCIAL_MEDIA
+  DESIGN
 }
 
 enum WorkCategory {

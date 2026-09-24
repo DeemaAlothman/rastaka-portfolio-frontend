@@ -6,6 +6,10 @@ import { resolveUploadedMediaUrl } from '../utils/b2Upload.js';
 
 const prisma = new PrismaClient();
 
+// نفس قوائم التصنيفات الموجودة بالفرونت إند (src/lib/categoryOptions.ts) - بدون "أخرى"
+const REEL_SPECIFIC_CATEGORIES = ['برنامج رستقة', 'مونتاج عقاري', 'ذكاء صناعي', 'ريلات اعلانية', 'مطاعم', 'ديكور', 'أفلام قصيرة', 'برومو', 'ريلات محتوى', 'موشن'];
+const DESIGN_SPECIFIC_CATEGORIES = ['أدلة تدريبية', 'اعلانات طرقية', 'ملفات شركات', 'مطبوعات', 'منتجات', 'سوشال ميديا', 'هوية بصرية'];
+
 // إنشاء عمل جديد
 export const createPortfolioItem = async (req, res) => {
   try {
@@ -123,7 +127,7 @@ export const createPortfolioItem = async (req, res) => {
 // الحصول على جميع الأعمال (مع فلترة)
 export const getAllPortfolioItems = async (req, res) => {
   try {
-    const { type, category, companyId, clientName, limit, offset } = req.query;
+    const { type, category, companyId, clientName, tag, limit, offset } = req.query;
 
     const where = {};
 
@@ -131,6 +135,17 @@ export const getAllPortfolioItems = async (req, res) => {
     if (category) where.category = category;
     if (companyId) where.companyId = companyId;
     if (clientName) where.clientName = { equals: clientName, mode: 'insensitive' };
+    // تصنيف "أخرى" بيشمل: بدون تصنيف، أو أي وسم قديم مش من القائمة الرسمية الجديدة
+    if (tag === 'أخرى') {
+      const specific = type === 'REEL'
+        ? REEL_SPECIFIC_CATEGORIES
+        : type === 'DESIGN'
+          ? DESIGN_SPECIFIC_CATEGORIES
+          : [...REEL_SPECIFIC_CATEGORIES, ...DESIGN_SPECIFIC_CATEGORIES];
+      where.OR = [{ tag: null }, { tag: '' }, { tag: { notIn: specific } }];
+    } else if (tag) {
+      where.tag = tag;
+    }
 
     // limit/offset اختياريين - لو ما انبعتوا، بيرجع كل النتائج زي ما كان (توافق كامل مع الكود القديم)
     const take = limit ? parseInt(limit, 10) : undefined;
@@ -203,7 +218,7 @@ export const getPortfolioItemsByType = async (req, res) => {
     const { type } = req.params;
     const { category } = req.query;
 
-    const validTypes = ['WEBSITE', 'LOGO', 'REEL', 'SOCIAL_MEDIA'];
+    const validTypes = ['WEBSITE', 'LOGO', 'REEL', 'SOCIAL_MEDIA', 'DESIGN'];
     if (!validTypes.includes(type)) {
       return res.status(400).json({ error: 'نوع العمل غير صحيح' });
     }
