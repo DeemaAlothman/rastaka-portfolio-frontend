@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 // نفس قوائم التصنيفات الموجودة بالفرونت إند (src/lib/categoryOptions.ts) - بدون "أخرى"
 const REEL_SPECIFIC_CATEGORIES = ['برنامج رستقة', 'مونتاج عقاري', 'ذكاء صناعي', 'ريلات اعلانية', 'مطاعم', 'ديكور', 'أفلام قصيرة', 'برومو', 'ريلات محتوى', 'موشن'];
-const DESIGN_SPECIFIC_CATEGORIES = ['أدلة تدريبية', 'اعلانات طرقية', 'ملفات شركات', 'مطبوعات', 'منتجات', 'سوشال ميديا', 'هوية بصرية'];
+const DESIGN_SPECIFIC_CATEGORIES = ['أدلة تدريبية', 'اعلانات طرقية', 'ملفات شركات', 'مطبوعات', 'منتجات', 'هوية بصرية'];
 
 // إنشاء عمل جديد
 export const createPortfolioItem = async (req, res) => {
